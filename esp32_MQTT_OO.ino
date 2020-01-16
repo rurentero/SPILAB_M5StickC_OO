@@ -11,6 +11,9 @@
 #include <M5StickC.h>
 #include <ArduinoJson.h>
 
+#include "./src/Location.h"
+#include "./src/Event.h"
+
 const char* ssid = "Gloin";
 const char* password = "Gloin2014";
 const char* mqttServer = "192.168.0.107";
@@ -18,27 +21,7 @@ const int mqttPort = 1883;
 const char* mqttUser = "";
 const char* mqttPassword = "";
 
-// TODO Creación de structs para almacenar los datos entrantes
-// TODO Modularizar el parseo desde un JSON a un struct con el objeto (Evento o User) 
-// ---- Structs section
-typedef struct{
-  double    latitude;
-  double    longitude;
-  int       radius;
-} Location;
-
-typedef struct{
-  int         id;
-  const char* title;
-  const char* description;
-  Location    location;
-} Event;
-
-typedef struct{
-  const char* id;
-  const char* preferences;
-} User;
-
+// TODO Crear un parser que pase de DynamicJson a la creación del objeto en cuestion.
  
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -166,17 +149,28 @@ void getEvent(DynamicJsonDocument &json) {
 void postEvent(DynamicJsonDocument &json) {
   // Mocked response
   Serial.println("Method: postEvent");
-  // Struct Test
-  Location location = {json["params"]["event"]["location"]["latitude"],
-                       json["params"]["event"]["location"]["longitude"],
-                       json["params"]["event"]["location"]["radius"]};
-  Serial.println("Location:");
-  Serial.print(F("latitude: "));
-  Serial.println(location.latitude,6);
-  Serial.print(F("longitude: "));
-  Serial.println(location.longitude,6);
-  Serial.print(F("radius: "));
-  Serial.println(location.radius);
+  // POO Test
+  Serial.println("POO Location");
+  Location loc2(json["params"]["event"]["location"]["latitude"],
+                json["params"]["event"]["location"]["longitude"],
+                json["params"]["event"]["location"]["radius"]);
+  Serial.println(loc2.getLatitude(),6);
+  Serial.println(loc2.getLongitude(),6);
+  Serial.println(loc2.getRadius(),6);
+  Serial.println("POO Event");
+  Event event1(json["params"]["event"]["id"],
+              json["params"]["event"]["title"],
+              json["params"]["event"]["description"], 
+              loc2);
+  Serial.println(event1.getId());
+  Serial.println(event1.getTitle());
+  Serial.println(event1.getDescription());
+  Location loc = event1.getLocation();
+  Serial.println("Retrieved Location from event:");
+  Serial.println(loc.getLatitude(),6);
+  Serial.println(loc.getLongitude(),6);
+  Serial.println(loc.getRadius(),6);
+  
 }
 void putEvent(DynamicJsonDocument &json) {
   // Mocked response
@@ -237,7 +231,27 @@ void notify(char* msg){
 //        }
 //  }
 //
-//  -- To  try this code, copy and paste it after the serialization phase, inside the "callback" function.
+//  -- POO Test
+//  Serial.println("POO Location");
+//  Location loc2(json["params"]["event"]["location"]["latitude"], json["params"]["event"]["location"]["longitude"], json["params"]["event"]["location"]["radius"]);
+//  Serial.println(loc2.getLatitude(),6);
+//  Serial.println(loc2.getLongitude(),6);
+//  Serial.println(loc2.getRadius(),6);
+//  Serial.println("POO Event");
+//  Event event1(json["params"]["event"]["id"],
+//              json["params"]["event"]["title"],
+//              json["params"]["event"]["description"], 
+//              loc2);
+//  Serial.println(event1.getId());
+//  Serial.println(event1.getTitle());
+//  Serial.println(event1.getDescription());
+//  Location loc = event1.getLocation();
+//  Serial.println("Retrieved Location from event:");
+//  Serial.println(loc.getLatitude(),6);
+//  Serial.println(loc.getLongitude(),6);
+//  Serial.println(loc.getRadius(),6);
+//
+//  -- To try this code, copy and paste it after the serialization phase, inside the "callback" function.
 //
 //  Serial.print(F("Recource Type: "));
 //  const char* resource = doc["resource"];
