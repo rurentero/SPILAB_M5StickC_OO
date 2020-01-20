@@ -7,6 +7,7 @@
 
 #ifndef LOCATION_H
 #define LOCATION_H
+#include <Arduino.h>
 
 class Location {
 	// Properties
