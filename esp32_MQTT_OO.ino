@@ -15,15 +15,14 @@
 
 #include "./src/Location.h"
 #include "./src/Event.h"
+#include "./src/User.h"
 
 const char* ssid = "Gloin";
 const char* password = "Gloin2014";
-const char* mqttServer = "192.168.0.103";
+const char* mqttServer = "192.168.0.105";
 const int mqttPort = 1883;
 const char* mqttUser = "";
 const char* mqttPassword = "";
-
-// TODO Crear un parser que pase de DynamicJson a la creación del objeto en cuestion.
  
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -98,46 +97,24 @@ void callback(char* topic, byte* payload, unsigned int length) {
   int sender = doc["sender"];
   Serial.println(sender);
 
-    Serial.println(F("----Testeo antes de llamada al parser-----"));
-  int eventId = doc["params"]["event"]["id"];
-  Serial.println(eventId);
-  const char* title = doc["params"]["event"]["title"];
-  Serial.println(title);
-  const char* description = doc["params"]["event"]["description"];
-  Serial.println(description);
-  Serial.println(F("Event -> Location: "));
-  double latitude = doc["params"]["event"]["location"]["latitude"];
-  Serial.println(latitude,6);
-  double longitude = doc["params"]["event"]["location"]["longitude"];
-  Serial.println(longitude,6);
-  int radius = doc["params"]["event"]["location"]["radius"];
-  Serial.println(radius);
-
-  //Resource selector
+  //----Resource selector
   if (strcmp(resource,"Event")==0) {
     notify("New notification: Event");
+    // Retrieve the received object from JSON.
+    Event event = JsonUtil::parseEvent(doc);
+    
     // Method selector: GET, POST, PUT, DELETE. Note that "method" (JSON) === operationId (OpenAPI)
     if (strcmp(method_,"getEvent")==0) { 
-      getEvent(doc, sender);
+      getEvent(event, sender);
     }
     else if (strcmp(method_,"postEvent")==0){
-      Event event = JsonUtil::parseEvent(doc);
-          Serial.println("----Despues del parser y antes del post");
-          Serial.println(event.getId());
-          Serial.println(event.getTitle());
-          Serial.println(event.getDescription());
-          Location loc = event.getLocation();
-          Serial.println("Retrieved Location from event:");
-          Serial.println(loc.getLatitude(),6);
-          Serial.println(loc.getLongitude(),6);
-          Serial.println(loc.getRadius());
       postEvent(event, sender);
     }
     else if (strcmp(method_,"putEvent")==0){
-      putEvent(doc, sender);
+      putEvent(event, sender);
     }
     else if (strcmp(method_,"deleteEvent")==0){
-      deleteEvent(doc, sender);
+      deleteEvent(event, sender);
     }
     else { // Default
       Serial.println("Resource method not supported.");
@@ -145,21 +122,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
   else if (strcmp(resource,"User")==0) {
     notify("New notification: User");
+    User user = JsonUtil::parseUser(doc);
+  
     if (strcmp(method_,"getUser")==0) { 
-      // TODO Aquí habria que llamar al parser para obtener los parametros y poder pasarlos.
       double latitude = doc["params"]["latitude"];
       double longitude = doc["params"]["longitude"];
       int radius = doc["params"]["radius"];
-      getUser(doc, latitude, longitude, radius, sender);
+      getUser(user, latitude, longitude, radius, sender);
     }
     else if (strcmp(method_,"postUser")==0){
-      postUser(doc, sender);
+      postUser(user, sender);
     }
     else if (strcmp(method_,"putUser")==0){
-      putUser(doc, sender);
+      putUser(user, sender);
     }
     else if (strcmp(method_,"deleteUser")==0){
-      deleteUser(doc, sender);
+      deleteUser(user, sender);
     }
     else { // Default
       Serial.println("Resource method not supported.");
@@ -179,73 +157,55 @@ void loop() {
 
 // --------------- API Methods
 // ---- Event
-void getEvent(DynamicJsonDocument &json, int &sender) {
+void getEvent(Event &event, int &sender) {
   // Mocked response
   Serial.println("Method: getEvent");
 }
 void postEvent(Event &event, int &sender) {
   // Mocked response
   Serial.println("Method: postEvent");
-  // TODO Limpiar todo este codigo y sustituir por la funcionalidad del parser
-  // POO Test
-  Serial.println("----Dentro del postEvent");
-//  Location loc2(json["params"]["event"]["location"]["latitude"],
-//                json["params"]["event"]["location"]["longitude"],
-//                json["params"]["event"]["location"]["radius"]);
-//  Serial.println(loc2.getLatitude(),6);
-//  Serial.println(loc2.getLongitude(),6);
-//  Serial.println(loc2.getRadius(),6);
-//  Serial.println("POO Event");
-//  Event event1(json["params"]["event"]["id"],
-//              json["params"]["event"]["title"],
-//              json["params"]["event"]["description"], 
-//              loc2);
-//  Serial.println(event1.getId());
-//  Serial.println(event1.getTitle());
-//  Serial.println(event1.getDescription());
-//  Location loc = event1.getLocation();
-//  Serial.println("Retrieved Location from event:");
-//  Serial.println(loc.getLatitude(),6);
-//  Serial.println(loc.getLongitude(),6);
-//  Serial.println(loc.getRadius(),6);
-
-  
-  
+  Serial.println("Retrieved Event:");
+  Serial.println(event.getId());
+  Serial.println(event.getTitle());
+  Serial.println(event.getDescription());
+  Location loc = event.getLocation();
+  Serial.println("Retrieved Location from event:");
+  Serial.println(loc.getLatitude(),6);
+  Serial.println(loc.getLongitude(),6);
+  Serial.println(loc.getRadius());
 }
-void putEvent(DynamicJsonDocument &json, int &sender) {
+void putEvent(Event &event, int &sender) {
   // Mocked response
   Serial.println("Method: putEvent");
 }
-void deleteEvent(DynamicJsonDocument &json, int &sender) {
+void deleteEvent(Event &event, int &sender) {
   // Mocked response
   Serial.println("Method: deleteEvent");
 }
 
 // ---- User
-void getUser(DynamicJsonDocument &json, double latitude, double longitude, int radius, int &sender) {
+void getUser(User &user, double &latitude, double &longitude, int &radius, int &sender) {
   // Mocked response
-  // TODO Testear los parametros recibidos
   Serial.println("Method: getUser");
   Serial.println("Testing received params:");
-  Serial.println(latitude);
-  Serial.println(longitude);
-  Serial.println(radius);
+  Serial.println(user.getId());
+  Serial.println(user.getPreferences());
 }
-void postUser(DynamicJsonDocument &json, int &sender) {
+void postUser(User &user, int &sender) {
   // Mocked response
   Serial.println("Method: postUser");
 }
-void putUser(DynamicJsonDocument &json, int &sender) {
+void putUser(User &user, int &sender) {
   // Mocked response
   Serial.println("Method: putUser");
 }
-void deleteUser(DynamicJsonDocument &json, int &sender) {
+void deleteUser(User &user, int &sender) {
   // Mocked response
   Serial.println("Method: deleteUser");
 }
 
 
-// ---- Utilities
+// ---- Utils
 void notify(char* msg){
   // Show notification in LCD. M5 must be initialized.
   M5.Lcd.fillScreen(BLACK);
