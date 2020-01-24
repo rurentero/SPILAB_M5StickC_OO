@@ -1,0 +1,128 @@
+openapi: 3.0.2
+info:
+  title: Event Alerts
+  description: This application notifies users about an event within a geographical area, you can also obtain users preferences and its location within an area to plan new events.
+  version: '1.0'
+  termsOfService: 'https://events.spilab.es/terms'
+  contact:
+    name: Spilab
+    url: 'https://spilab.es'
+    email: info@spilab.es
+paths:
+  /event:
+    post:
+      tags:
+        - Event
+      summary: Sends an event
+      description: Sends an event
+      operationId: postEvent
+      requestBody:
+        description: Information about the event
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '404':
+          $ref: '#/components/responses/404'
+  /users:
+    get:
+      tags:
+        - Location
+      summary: Gets users within an area
+      description: Obtain user prefernces within a geographical area
+      operationId: getUsers
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: radius
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    Event:
+      required:
+        - id
+        - title
+        - description
+        - latitude
+        - longitude
+        - radius
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        title:
+          type: string
+          example: 'Football Match!'
+        description:
+          type: string
+          example: 'Football Match at 11:00 in City Soccer Stadium'
+        location:
+         $ref: '#/components/schemas/Location'  
+    Location:
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 38.514377
+        longitude: 
+          type: number
+          format: double
+          example: -6.844325
+        radius:
+          type: number
+          format: double
+          example: 200
+    User:
+      properties:
+        id:
+          type: string
+          example: '05461A54'
+        preferences:
+          type: string
+          example: 'Football, music and action films.'
+        
+  responses:
+    404:
+      description: Not found response
+      content:
+        text/plain:
+          schema:
+            title: Endpoint not found
+            type: string
+            example: Not found 
+    201:
+      description: Succesful response
+      content:
+        text/plain:
+          schema:
+            title: Succesful response
+            type: string
+            example: Post Correctly
