@@ -20,6 +20,8 @@ class JsonUtil {
 	public:
 		static Event parseEvent(DynamicJsonDocument &json);
 		static User parseUser(DynamicJsonDocument &json);
+		static Location parseLocation(DynamicJsonDocument &json);
+		static Location parseLocation(const JsonObject &json);
 	private:
 		// Disallow creating an instance of this object
 		JsonUtil() {};

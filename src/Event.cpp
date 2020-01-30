@@ -15,7 +15,7 @@ Event::Event(){
 	location = Location();
 }
 
-Event::Event(int _id, const char* _title, const char* _description, Location _location){
+Event::Event(int _id, const char* _title, const char* _description, const Location _location){
 	id = _id;
 	title = _title;
 	description = _description;

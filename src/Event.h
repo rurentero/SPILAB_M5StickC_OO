@@ -20,7 +20,7 @@ class Event {
 	public:	
 		// Constructor
 		Event();
-		Event(int _id, const char* _title, const char* _description, Location _location);
+		Event(int _id, const char* _title, const char* _description, const Location _location);
 
 		// Setters & Getters
 		void 	setId(int _id);

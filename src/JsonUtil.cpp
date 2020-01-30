@@ -8,14 +8,10 @@
 #include "JsonUtil.h"
 
 Event JsonUtil::parseEvent(DynamicJsonDocument &json){
-	Location location(json["params"]["event"]["location"]["latitude"],
-					  json["params"]["event"]["location"]["longitude"],
-					  json["params"]["event"]["location"]["radius"]);
-
 	Event event(json["params"]["event"]["id"],
 				json["params"]["event"]["title"],
 				json["params"]["event"]["description"], 
-				location);
+				parseLocation((JsonObject) json["params"]["event"]["location"]));
 
 	return event;
 }
@@ -25,4 +21,22 @@ User JsonUtil::parseUser(DynamicJsonDocument &json){
 			  json["params"]["user"]["preferences"]);
 
 	return user;
+}
+
+// Procesamiento para parametros
+Location JsonUtil::parseLocation(DynamicJsonDocument &json){
+		Location location(json["params"]["location"]["latitude"],
+					  json["params"]["location"]["longitude"],
+					  json["params"]["location"]["radius"]);
+
+	return location;
+}
+
+// Procesamiento cuando Location es un objeto dependiente de otro
+Location JsonUtil::parseLocation(const JsonObject &json){
+		Location location(json["latitude"],
+					  json["longitude"],
+					  json["radius"]);
+
+	return location;
 }
