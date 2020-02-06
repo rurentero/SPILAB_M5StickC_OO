@@ -1,0 +1,149 @@
+openapi: 3.0.2
+info:
+  title: Emergency Alerts
+  description: This application notifies users about an emergency within a geographical area, you can also obtain users information and its location within an area to plan possible evacuations or other uses
+  version: '1.0'
+  termsOfService: 'https://emergency.spilab.es/terms'
+  contact:
+    name: Emergency
+    url: 'https://spilab.es'
+    email: info@spilab.es
+paths:
+  /emergency:
+    post:
+      tags:
+        - Emergencies
+      summary: Sends an emergency to the devices
+      description: An emergency is sent to the devices and return users's information inside the emergency area
+      operationId: postEmergency
+      requestBody:
+        description: Information about the emergency
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Emergency'
+      responses:
+        '201':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyResponse'
+        '404':
+          $ref: '#/components/responses/404'
+  /users:
+    get:
+      tags:
+        - Location
+      summary: Gets users within an area
+      description: Obtain information and location of users within a geographical area
+      operationId: getUsers
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: radius
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  schemas:
+    Emergency:
+      required:
+        - id
+        - title
+        - description
+        - latitude
+        - longitude
+        - radius
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        title:
+          type: string
+          example: 'Fire in Santa Maria mountain!'
+        description:
+          type: string
+          example: 'We force that you go out on the highways to Badajoz, Taliga or Valverde de Leganes'
+        latitude:
+          type: number
+          format: double
+          example: 38.501114
+        longitude: 
+          type: number
+          format: double
+          example: -6.818295
+        radius:
+          type: number
+          format: double
+          example: 1000
+    EmergencyResponse:
+      required:
+        - emergencyId
+        - user_information
+      properties:
+        emergencyId:
+          type: integer
+          format: int64
+          example: 1
+        user_information:
+          $ref: '#/components/schemas/User'
+    Location:
+      properties:
+        deviceId:
+          type: number
+        latitude:
+          type: number
+          format: double
+          example: 38.514377
+        longitude: 
+          type: number
+          format: double
+          example: -6.844325
+    User:
+      properties:
+        name:
+          type: string
+          example: 'Paco'
+        contact:
+          type: string
+          example: '669100117'
+        reduced_mobility:
+          type: boolean
+          example: true
+        other_problems:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+  responses:
+    404:
+      description: Not found response
+      content:
+        text/plain:
+          schema:
+            title: Endpoint not found
+            type: string
+            example: Not found

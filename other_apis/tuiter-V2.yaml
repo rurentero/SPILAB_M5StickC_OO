@@ -1,0 +1,233 @@
+openapi: 3.0.1
+info:
+  title: Tuiter
+  description: Esta API provee los servicios de Tuiter.
+  version: '2.0'
+  termsOfService: 'http://spilab.es/'
+  contact:
+    name: Tuiter 
+    url: 'http://spilab.es/'
+    email: spilab.uex@gmail.com
+servers:
+  - url: 'None'
+
+paths:
+  /tuit:
+    get:
+      tags:
+        - Tuit
+      summary: Obtener tuits con busqueda filtrada
+      description: Obtiene los tuits que contiene la palabra del parametro.
+      operationId: getTuits
+      parameters:
+        - name: palabraTuit
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+           $ref: '#/components/responses/200Tuit'
+        '404':
+           $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+    post:
+      tags:
+        - Tuit
+      summary: Enviar tuit
+      description: Publica un tuit.
+      operationId: sendTuit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tuit'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+    delete:
+      tags:
+        - Tuit
+      summary: Eliminar tuit
+      description: Elimina un tuit dando como parametro el id y autor del tweet.
+      operationId: deleteTuit
+      parameters:
+        - name: idTuit
+          in: path
+          description: id del tuit para borrar
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: nombreUsuario
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+      
+  /hashtag:
+    get:
+      tags:
+        - Hashtag
+      summary: Obtener tuits con 'x' hashtag
+      description: Obtiene los tuits con un determinado hashtag.
+      operationId: getHashtag
+      parameters:
+        - name: hashtag
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+           $ref: '#/components/responses/200Tuit'
+        '404':
+           $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+  /eventos:
+    post:
+      tags:
+        - Eventos
+      summary: Publicar evento
+      description: Envia un evento en el topic seleccionado.
+      operationId: sendEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Evento'
+      responses:
+        '201':
+          $ref: '#/components/responses/201'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+    get:
+      tags:
+        - Eventos
+      summary: Obtener eventos con busqueda filtrada
+      description: Obtiene los eventos que contiene la palabra del parametro.
+      operationId: getEventos
+      parameters:
+        - name: nombreEvento
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+           $ref: '#/components/responses/200Evento'
+        '404':
+           $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        
+  
+components:
+  schemas:
+    Tuit:
+      type: object
+      properties:
+        idTuit:
+          type: integer
+          format: int64
+          example: 1
+        usuario:
+          type: string
+          example: '@nombreUsuario'
+        contenido:
+          type: string
+          example: 'Mi primer tweet #HelloWorld'
+        fechaHora:
+          type: string
+          format: date-time
+          example: '2019-03-26T11:32:28Z'
+    Evento:
+      type: object
+      properties:
+        idEvento:
+          type: integer
+          format: int64
+          example: 1
+        nombreEvento:
+          type: string
+          example: 'Partido de futbol en Pinilla'
+        topic:
+          type: string
+          example: 'partidosFutbol'
+        descripcion:
+          type: string
+          example: 'Partido de futbol 7 en los campos de Pinilla a las 17:00, se pueden hacer varios equipos y hacer un triangular'
+        fechaHora:
+          type: string
+          format: date-time
+          example: '2019-03-26T11:32:28Z'
+        localizacion:
+           $ref: '#/components/schemas/Localizacion'
+        
+    Localizacion:
+      type: object
+      properties:
+        latitud:
+          type: number
+          format: float
+          example: 38.5146304
+        longitud:
+          type: number
+          format: float
+          example: -6.8490971
+        radio:
+          type: integer
+          format: int64
+          example: 2000
+  responses:
+    '200Tuit':
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+           type: array
+           items:
+            $ref: '#/components/schemas/Tuit'
+    '200Evento':
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+           type: array
+           items:
+            $ref: '#/components/schemas/Evento'
+    '201':
+      description: Created
+      content:
+        text/plain:
+          schema:
+            title: Created
+            type: string
+            example: Created
+    '404':
+      description: Not found response
+      content:
+        text/plain:
+          schema:
+            title: Endpoint not found
+            type: string
+            example: Not found
+    '405':
+      description: Invalid input
